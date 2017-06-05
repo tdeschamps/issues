@@ -40,10 +40,13 @@ defmodule Issues.CLI do
     System.halt(0)
   end
 
-  def process({user, project , _}) do
+  def process({user, project , count}) do
     Issues.GithubIssues.fetch(user, project)
     |> decode_response
+    |> convert_to_list_of_maps
     |> sort_into_ascending_order
+    |> Enum.take(count)
+    |> to_table
   end
 
   def decode_response({:ok, body}), do: body
@@ -54,11 +57,27 @@ defmodule Issues.CLI do
     System.halt(2)
   end
 
+  def convert_to_list_of_maps(list) do
+    list
+    |> Enum.map(&Enum.into(&1, Map.new))
+  end
+
   def sort_into_ascending_order(list_of_issues) do
     list_of_issues
     |> Enum.sort fn i1, i2 ->
       Map.get(i1, "created_at") <= Map.get(i2, "created_at")
     end
+  end
+
+  def to_table(list) do
+    first_row  = "#    |  created_at          | title"
+    second_row = "-----+----------------------+------"
+    IO.puts first_row
+    IO.puts second_row
+    Enum.each(list,
+      fn %{"number" => issue_number, "created_at" => created_at, "title" => title} ->
+        IO.puts "#{issue_number} | #{created_at} | #{title}"
+      end)
   end
 end
 
