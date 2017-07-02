@@ -7,7 +7,7 @@ defmodule Issues.CLI do
   the various functions that end up generating a
   table of the last _n_ issues in a github project
   """
-  def run(argv) do
+  def main(argv) do
     argv
     |> parse_args
     |> process
@@ -19,8 +19,7 @@ defmodule Issues.CLI do
   the number of entries to format.
   Return a tuple of `{ user, project, count }`, or `:help` if help was given.
   """
-
-  def parse_args(argv) do
+    def parse_args(argv) do
     parse = OptionParser.parse(argv, switches: [ help: :boolean],
                                      aliases:  [ h:    :help   ])
     case  parse  do
@@ -69,17 +68,6 @@ defmodule Issues.CLI do
     |> Enum.sort fn i1, i2 ->
       Map.get(i1, "created_at") <= Map.get(i2, "created_at")
     end
-  end
-
-  def to_table(list) do
-    first_row  = "#    |  created_at          | title"
-    second_row = "-----+----------------------+------"
-    IO.puts first_row
-    IO.puts second_row
-    Enum.each(list,
-      fn %{"number" => issue_number, "created_at" => created_at, "title" => title} ->
-        IO.puts "#{issue_number} | #{created_at} | #{title}"
-      end)
   end
 end
 
