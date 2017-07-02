@@ -21,7 +21,7 @@ defmodule CLITest do
   test "sort ascending orders the correct way" do
     result = sort_into_ascending_order(fake_list(["c", "a", "b"]))
     issues = for issue <- result, do: Map.get(issue, "created_at")
-    asset_issues = ~w{a b c}
+    assert issues == ~w{a b c}
   end
 
   defp fake_list(values) do
